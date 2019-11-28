@@ -25,9 +25,58 @@ const renderRecipe = recipe => {
     elements.searchResList.insertAdjacentHTML('beforeend', markup);
 };
 
+// Create buttons for switching recipes pages
+// Type can be previous or next
+const createButton = (page, type) => `
+    <button class="btn-inline results__btn--${type}"
+    data-goto=${type==='prev' ? page-1 : page+1}>
+        <span>Page ${type==='prev' ? page-1 : page+1}</span>
+        <svg class="search__icon">
+            <use href="img/icons.svg#icon-triangle-${type==='prev' ? 'left' : 'right'}"></use>
+        </svg>
+    </button>
+`;
+
+// Render the buttons for switching recipes pages
+const renderButtons = (page, numResults, resPerPage) => {
+    // Total number of pages
+    const pages = Math.ceil(numResults / resPerPage);
+    // The button to create
+    let button;
+
+    // Render the buttons according to the page number
+    if (page === 1 && pages > 1) {
+        // The first page
+        // Then render only the button to the next page
+        button = createButton(page, 'next');
+    } else if (page === pages) {
+        // The last page
+        // Then render only the button to the previous page
+        button = createButton(page, 'prev');
+    } else if (page < pages) {
+        // Intermediary pages
+        // Render two buttons, previous page and next page
+        button = `
+            ${button = createButton(page, 'prev')}
+            ${button = createButton(page, 'next')}
+        `;
+    }
+
+    // Add the created button to the dom
+    elements.searchResPages.insertAdjacentHTML('afterbegin', button);
+};
+
 // Render all founded recipes
-export const renderResults = recipes => {
-    recipes.forEach(renderRecipe);
+export const renderResults = (recipes, page=1, resPerPage=10) => {
+    // Variables that store the index of the diplayed recipes
+    const start = (page - 1) * resPerPage;
+    const end = page * resPerPage;
+
+    // Display only resPerPage recipes on each page
+    recipes.slice(start, end).forEach(renderRecipe);
+
+    // Render the pagination button
+    renderButtons(page, recipes.length, resPerPage)
 };
 
 // Limit a recipe title
@@ -56,5 +105,8 @@ export const clearInput = () => {
 
 // Clean the results section
 export const clearResults = () => {
+    // Remove all the recipes
     elements.searchResList.innerHTML = '';
+    // Remove the navigation page button
+    elements.searchResPages.innerHTML = '';
 };

@@ -1,5 +1,6 @@
 // Global app controller
 import Search from './models/Search';
+import Recipe from './models/Recipe';
 import * as searchView from './views/searchView';
 import { elements, renderLoader, clearLoader } from './views/base';
 /*
@@ -12,6 +13,12 @@ import { elements, renderLoader, clearLoader } from './views/base';
 
 const state = {};
 
+/* ====================
+*                      *
+*   SEARCH CONTROLLER  *
+*                      *
+* =================== */
+
 // Executed when we submit the search form
 const controlSearch = async () => {
     console.log("I'm searching... ");
@@ -22,18 +29,24 @@ const controlSearch = async () => {
         // 2- Instantiate a Search object and add it to state
         state.search = new Search(query);
 
-        // 3- Prepare the UI for the result
-        searchView.clearInput();
-        searchView.clearResults();
-        renderLoader(elements.searchRes);
+        try {
+            // 3- Prepare the UI for the result
+            searchView.clearInput();
+            searchView.clearResults();
+            renderLoader(elements.searchRes);
 
-        // 4- Search for recipes
-        await state.search.getResults();
-        // 4-1) Clear the loader
-        clearLoader();
+            // 4- Search for recipes
+            await state.search.getResults();
+            // 4-1) Clear the loader
+            clearLoader();
 
-        // 5- Render result on the UI
-        searchView.renderResults(state.search.result);
+            // 5- Render result on the UI
+            searchView.renderResults(state.search.result);
+        } catch(e) {
+            alert('Hoops !!! An error has occured when retrieve data...');
+            // Anyways clear the loader
+            clearLoader();
+        }
     }
 };
 
@@ -43,3 +56,60 @@ elements.searchForm.addEventListener('submit', e => {
     e.preventDefault();
     controlSearch();
 });
+
+// Add an event listenner on the pagination button
+elements.searchResPages.addEventListener('click', e => {
+    // Look for the nearest element with the macthing attribut(class, id...)
+    const btn = e.target.closest('.btn-inline');
+    const goToPage = parseInt(btn.dataset.goto);
+
+    // Prepare the UI for the next page diplay
+    searchView.clearResults();
+
+    // Display the requested page with it's recipes
+    searchView.renderResults(state.search.result, goToPage);
+});
+
+
+/* ====================
+*                      *
+*   RECIPE CONTROLLER  *
+*                      *
+* =================== */
+
+// Some tests
+const controlRecipe = async () => {
+    // Get ID from url
+    const id = window.location.hash.replace('#', '');
+
+    if (id) {
+        // 1- Prepare UI for change
+
+        // 2- Create Recipe object
+        state.recipe = new Recipe(id);
+
+        try {
+            // 3- Get recipe data
+            // We want this happens asynchronous way: run on the background
+            await state.recipe.getRecipe();
+
+            // 4- Calculate cooking time and servings
+            state.recipe.calcTime();
+            state.recipe.calcSevings();
+
+            // 5- Render the recipe
+            console.log(state.recipe);
+        } catch(e) {
+            // Alert the user
+            alert('Something got wrong while processing recipe...');
+        }
+    }
+};
+
+// Do something when the url's hach variable change
+// Note that this change happen each time we click
+// on a recipe in the left liste
+
+// window.addEventListener('hashchange', controlRecipe);
+// window.addEventListener('load', controlRecipe);
+['hashchange', 'load'].forEach(ev => window.addEventListener(ev, controlRecipe));
