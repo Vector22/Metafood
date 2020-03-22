@@ -29,10 +29,10 @@ const renderRecipe = recipe => {
 // Type can be previous or next
 const createButton = (page, type) => `
     <button class="btn-inline results__btn--${type}"
-    data-goto=${type==='prev' ? page-1 : page+1}>
-        <span>Page ${type==='prev' ? page-1 : page+1}</span>
+    data-goto=${type === 'prev' ? page - 1 : page + 1}>
+        <span>Page ${type === 'prev' ? page - 1 : page + 1}</span>
         <svg class="search__icon">
-            <use href="img/icons.svg#icon-triangle-${type==='prev' ? 'left' : 'right'}"></use>
+            <use href="img/icons.svg#icon-triangle-${type === 'prev' ? 'left' : 'right'}"></use>
         </svg>
     </button>
 `;
@@ -67,8 +67,8 @@ const renderButtons = (page, numResults, resPerPage) => {
 };
 
 // Render all founded recipes
-export const renderResults = (recipes, page=1, resPerPage=10) => {
-    // Variables that store the index of the diplayed recipes
+export const renderResults = (recipes, page = 1, resPerPage = 10) => {
+    // Variables that store the index of the displayed recipes
     const start = (page - 1) * resPerPage;
     const end = page * resPerPage;
 
@@ -80,12 +80,13 @@ export const renderResults = (recipes, page=1, resPerPage=10) => {
 };
 
 // Limit a recipe title
-const limitRecipeTitle = (title, limit=17) => {
-    // Hold the new trucated array by words
+const limitRecipeTitle = (title, limit = 17) => {
+    // Hold the new truncated array by words
     const newTitle = [];
-    if(title.length > limit) {
+    if (title.length > limit) {
         title.split(' ').reduce((acc, cur) => {
-            if(acc + cur.length <= limit) {
+            // acc stand for accumulator & cur for current
+            if (acc + cur.length <= limit) {
                 newTitle.push(cur);
             }
             return acc + cur.length;

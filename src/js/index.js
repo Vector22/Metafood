@@ -25,7 +25,7 @@ const controlSearch = async () => {
     // 1- Get query from view
     const query = searchView.getInput();
 
-    if(query) {
+    if (query) {
         // 2- Instantiate a Search object and add it to state
         state.search = new Search(query);
 
@@ -42,7 +42,7 @@ const controlSearch = async () => {
 
             // 5- Render result on the UI
             searchView.renderResults(state.search.result);
-        } catch(e) {
+        } catch (e) {
             alert('Hoops !!! An error has occured when retrieve data...');
             // Anyways clear the loader
             clearLoader();
@@ -61,13 +61,16 @@ elements.searchForm.addEventListener('submit', e => {
 elements.searchResPages.addEventListener('click', e => {
     // Look for the nearest element with the macthing attribut(class, id...)
     const btn = e.target.closest('.btn-inline');
-    const goToPage = parseInt(btn.dataset.goto);
 
-    // Prepare the UI for the next page diplay
-    searchView.clearResults();
+    if (btn) {
+        const goToPage = parseInt(btn.dataset.goto);
 
-    // Display the requested page with it's recipes
-    searchView.renderResults(state.search.result, goToPage);
+        // Prepare the UI for the next page display
+        searchView.clearResults();
+
+        // Display the requested page with it's recipes
+        searchView.renderResults(state.search.result, goToPage);
+    }
 });
 
 
@@ -89,17 +92,19 @@ const controlRecipe = async () => {
         state.recipe = new Recipe(id);
 
         try {
-            // 3- Get recipe data
+            // 3- Get recipe data and parse ingredients
             // We want this happens asynchronous way: run on the background
             await state.recipe.getRecipe();
+            state.recipe.parseIngredients();
+            console.log(state.recipe.ingredients);
 
             // 4- Calculate cooking time and servings
             state.recipe.calcTime();
-            state.recipe.calcSevings();
+            state.recipe.calcServings();
 
             // 5- Render the recipe
             console.log(state.recipe);
-        } catch(e) {
+        } catch (e) {
             // Alert the user
             alert('Something got wrong while processing recipe...');
         }

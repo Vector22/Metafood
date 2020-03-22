@@ -18,7 +18,7 @@ export default class Recipe {
             this.img = result.data.recipe.image_url;
             this.url = result.data.recipe.source_url;
             this.ingredients = result.data.recipe.ingredients;
-        } catch(e) {
+        } catch (e) {
             // statements
             console.log(e);
             // Alert the user that an error has occured
@@ -36,10 +36,81 @@ export default class Recipe {
     }
 
     // Served for 4 persons
-    calcSevings() {
+    calcServings() {
         this.servings = 4;
     }
 
-    //
+    // Tries to harmonize the units of measurement of
+    // ingredients
+    parseIngredients() {
+        const unitsLong = ['tablespoons', 'tablespoon', 'ounces', 'ounce',
+            'teaspoons', 'teaspoon', 'cups', 'pounds'];
+        const unitsShort = ['tbsp', 'tbsp', 'oz', 'oz', 'tsp', 'tsp',
+            'cup', 'pound'];
+
+        const newIngredients = this.ingredients.map(el => {
+
+            // 1- Harmonize units
+            let ingredient = el.toLowerCase();
+            unitsLong.forEach((unit, i) => {
+                ingredient = ingredient.replace(unit, unitsShort[i]);
+            });
+
+            // 2- Remove parenthesis
+            ingredient = ingredient.replace(/ *\([^)]*\) */g, ' ');
+
+            // 3- Parse ingredients into count, unit and ingredient
+            // First we convert the ingredient into array
+            const arrIng = ingredient.split(' ');
+
+            // Try to find the index of ingredient unit inside the parsed array
+            // If one word of unitShort is present in arrIng return it index
+            const unitIndex = arrIng.findIndex(el2 => unitsShort.includes(el2));
+
+            // The new formated ingredient object
+            let objectIng;
+
+            if (unitIndex > -1) {
+                // There is an unit (and many situations can happens)
+                // Ex: 2 1/2 cups, arrCount = [2, 1/2]
+                // Ex: 4 spoons, arrCount = [4]
+                const arrCount = arrIng.slice(0, unitIndex);
+
+                let count;
+                if (arrCount.length === 1) {
+                    count = eval(arrIng[0].replace('-', '+'));
+                } else {
+                    count = eval(arrIng.slice(0, unitIndex).join('+'));
+                }
+
+                objectIng = {
+                    count,
+                    unit: arrIng[unitIndex],
+                    ingredient: arrIng.slice(unitIndex + 1).join(' ')
+                };
+
+            } else if (parseInt(arrIng[0], 10)) {
+                // There is no unit, but 1st elt is number
+                objectIng = {
+                    count: parseInt(arrIng[0], 10),
+                    unit: '',
+                    ingredient: arrIng.slice(1).join(' ')
+                };
+            } else if (unitIndex === -1) {
+                // There is NO unit and NO number in 1st position
+                // We will set up a new one
+                objectIng = {
+                    count: 1,
+                    unit: '',
+                    // ingredient : ingredient
+                    ingredient  // The ES6 way
+                };
+            }
+
+            return objectIng;
+        });
+
+        this.ingredients = newIngredients;
+    }
 
 }
