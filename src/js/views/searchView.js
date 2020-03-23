@@ -111,3 +111,11 @@ export const clearResults = () => {
     // Remove the navigation page button
     elements.searchResPages.innerHTML = '';
 };
+
+// Give a silver background to a selected recipe on the list
+export const highLightSelected = id => {
+    // Remove the previous selected class
+    const resultArr = Array.from(document.querySelectorAll('.results__link'));
+    resultArr.forEach(el => el.classList.remove('results__link--active'));
+    document.querySelector(`a[href="#${id}"]`).classList.add('results__link--active');
+};

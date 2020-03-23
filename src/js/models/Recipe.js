@@ -47,6 +47,8 @@ export default class Recipe {
             'teaspoons', 'teaspoon', 'cups', 'pounds'];
         const unitsShort = ['tbsp', 'tbsp', 'oz', 'oz', 'tsp', 'tsp',
             'cup', 'pound'];
+        // Fix the case where units are kg or g
+        const units = [...unitsShort, 'kg', 'g'];
 
         const newIngredients = this.ingredients.map(el => {
 
@@ -65,7 +67,7 @@ export default class Recipe {
 
             // Try to find the index of ingredient unit inside the parsed array
             // If one word of unitShort is present in arrIng return it index
-            const unitIndex = arrIng.findIndex(el2 => unitsShort.includes(el2));
+            const unitIndex = arrIng.findIndex(el2 => units.includes(el2));
 
             // The new formated ingredient object
             let objectIng;

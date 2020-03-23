@@ -7,6 +7,7 @@ export const elements = {
     searchRes: document.querySelector('.results'),
     searchResList: document.querySelector('.results__list'),
     searchResPages: document.querySelector('.results__pages'),
+    recipe: document.querySelector('.recipe'),
 
 };
 
@@ -23,5 +24,5 @@ export const renderLoader = parent => {
 
 export const clearLoader = () => {
     const loader = document.querySelector('.loader');
-    if(loader) loader.parentElement.removeChild(loader);
+    if (loader) loader.parentElement.removeChild(loader);
 }
