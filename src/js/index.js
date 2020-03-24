@@ -1,8 +1,10 @@
 // Global app controller
 import Search from './models/Search';
 import Recipe from './models/Recipe';
+import ShoppingList from './models/ShoppingList';
 import * as searchView from './views/searchView';
 import * as recipeView from './views/recipeView';
+import * as shoppingListView from './views/shoppingListView';
 import { elements, renderLoader, clearLoader } from './views/base';
 /*
     Global state of the app
@@ -144,6 +146,31 @@ elements.recipe.addEventListener('click', el => {
         // The event is triggered by + button
         state.recipe.updateServings('inc');
         recipeView.updateServingsIngredients(state.recipe);
+    } else if (el.target.matches('.recipe__btn-add, .recipe__btn-add *')) {
+        // Shopping cart button has been clicked
+        console.log('Shopping cart clicked !!!');
+        controlShoppingList();
+
     }
-    console.log(state.recipe);
 });
+
+
+/* =========================
+*                            *
+*   SHOPPING LIST CONTROLLER *
+*                            *
+* ========================== */
+
+const controlShoppingList = () => {
+    // Create a new list if not exist yet
+    if (!state.shoppingList) state.shoppingList = new ShoppingList();
+
+    // Add each ingredient to the shopping list
+    state.recipe.ingredients.forEach(el => {
+        const item = state.shoppingList.addItem(el.count, el.unit, el.ingredient);
+        shoppingListView.renderItem(item);
+    });
+};
+
+// FOR TESTING ONLY
+window.l = new ShoppingList();
