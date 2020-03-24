@@ -127,3 +127,23 @@ const controlRecipe = async () => {
 // window.addEventListener('hashchange', controlRecipe);
 // window.addEventListener('load', controlRecipe);
 ['hashchange', 'load'].forEach(ev => window.addEventListener(ev, controlRecipe));
+
+
+// Handle recipe buttons( + and -) click
+elements.recipe.addEventListener('click', el => {
+    if (el.target.matches('.btn-decrease, .btn-decrease *')) {
+        // The event is triggered by - button
+        if (state.recipe.servings > 1) {
+            // One person at less is required
+            state.recipe.updateServings('dec');
+            recipeView.updateServingsIngredients(state.recipe);
+        } else {
+            console.log('Impossible to serve this recipe to less than one person');
+        }
+    } else if (el.target.matches('.btn-increase, .btn-increase *')) {
+        // The event is triggered by + button
+        state.recipe.updateServings('inc');
+        recipeView.updateServingsIngredients(state.recipe);
+    }
+    console.log(state.recipe);
+});

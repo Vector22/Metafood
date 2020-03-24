@@ -115,4 +115,18 @@ export default class Recipe {
         this.ingredients = newIngredients;
     }
 
+    // Update the ingredients list when we click on
+    // + or - sign om the UI
+    updateServings(type) {
+        // Update serving ('dec stand for decrease, inc: increase')
+        const newServings = type === 'dec' ? this.servings - 1 : this.servings + 1;
+
+        // Update ingredients
+        this.ingredients.forEach(ingre => {
+            ingre.count *= (newServings / this.servings);
+        });
+
+        this.servings = newServings;
+    }
+
 }
