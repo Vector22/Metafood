@@ -21,7 +21,7 @@ export const renderItem = item => {
 };
 
 // Remove an item in the GUI
-export const deleteItem = item => {
-    const elt = document.querySelector(`[data-itemid="${item.id}"]`);
-    elt.parentElement.removeChild(item);
+export const deleteItem = id => {
+    const item = document.querySelector(`[data-itemid="${id}"]`);
+    if (item) item.parentElement.removeChild(item);
 };

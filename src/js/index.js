@@ -1,16 +1,18 @@
 // Global app controller
 import Search from './models/Search';
 import Recipe from './models/Recipe';
+import Likes from './models/Likes';
 import ShoppingList from './models/ShoppingList';
 import * as searchView from './views/searchView';
 import * as recipeView from './views/recipeView';
 import * as shoppingListView from './views/shoppingListView';
+import * as likesView from './views/likesView';
 import { elements, renderLoader, clearLoader } from './views/base';
 /*
     Global state of the app
     - search object
     - current recipe object
-    - shopping list object
+    - shopping list object 
     - liked receipes
 */
 // le monde est bon 
@@ -111,9 +113,11 @@ const controlRecipe = async () => {
             state.recipe.calcServings();
 
             // 5- Render the recipe
-            // console.log(state.recipe);
             clearLoader();
-            recipeView.renderRecipe(state.recipe);
+            recipeView.renderRecipe(
+                state.recipe,
+                state.likes.isLiked(id)
+            );
         } catch (e) {
             // Alert the user
             alert('Something got wrong while processing recipe...');
@@ -129,30 +133,6 @@ const controlRecipe = async () => {
 // window.addEventListener('hashchange', controlRecipe);
 // window.addEventListener('load', controlRecipe);
 ['hashchange', 'load'].forEach(ev => window.addEventListener(ev, controlRecipe));
-
-
-// Handle recipe buttons( + and -) click
-elements.recipe.addEventListener('click', el => {
-    if (el.target.matches('.btn-decrease, .btn-decrease *')) {
-        // The event is triggered by - button
-        if (state.recipe.servings > 1) {
-            // One person at less is required
-            state.recipe.updateServings('dec');
-            recipeView.updateServingsIngredients(state.recipe);
-        } else {
-            console.log('Impossible to serve this recipe to less than one person');
-        }
-    } else if (el.target.matches('.btn-increase, .btn-increase *')) {
-        // The event is triggered by + button
-        state.recipe.updateServings('inc');
-        recipeView.updateServingsIngredients(state.recipe);
-    } else if (el.target.matches('.recipe__btn-add, .recipe__btn-add *')) {
-        // Shopping cart button has been clicked
-        console.log('Shopping cart clicked !!!');
-        controlShoppingList();
-
-    }
-});
 
 
 /* =========================
@@ -172,5 +152,111 @@ const controlShoppingList = () => {
     });
 };
 
-// FOR TESTING ONLY
-window.l = new ShoppingList();
+// Handle update and delete item from shoppingList ingredient
+elements.shopping.addEventListener('click', el => {
+    // Retrieve the id of the item
+    const id = el.target.closest('.shopping__item').dataset.itemid;
+
+    // Handle the delete button
+    if (el.target.matches('.shopping__delete, .shopping__delete *')) {
+        // Delete from the state
+        state.shoppingList.deleteItem(id);
+        // Delete from the UI
+        shoppingListView.deleteItem(id);
+        // Handle the update button
+    } else if (el.target.matches('.shopping__count-value')) {
+        const val = parseFloat(el.target.value, 10);
+        state.shoppingList.updateCount(id, val);
+    }
+});
+
+
+/* =========================
+*                            *
+*   LIKES CONTROLLER         *
+*                            *
+* ========================== */
+
+
+const controlLike = () => {
+    console.log('Enter in controlLike function');
+    if (!state.likes) state.likes = new Likes();
+
+    const recipeId = state.recipe.id;
+
+    if (!state.likes.isLiked(recipeId)) {
+        // [User has not liked the current recipe yet]
+
+        // Add like to the state
+        const newLike = state.likes.addLike(
+            recipeId,
+            state.recipe.title,
+            state.recipe.author,
+            state.recipe.img
+        );
+
+        // Toggle the like button
+        likesView.toggleLikeButton(true);
+
+        // Add like to UI list
+        likesView.renderLike(newLike);
+    } else {
+        // [User has liked the current recipe]
+
+        // Remove like from the state
+        state.likes.dislike(recipeId);
+
+        // Toggle the like button
+        likesView.toggleLikeButton(false);
+
+        // Remove like from UI list
+        likesView.dislike(recipeId);
+    }
+    likesView.toggleLikeMenu(state.likes.getNumLikes());
+};
+
+
+
+
+/* ================================================
+*                                                  *
+*     HANDLE RECIPE'S BUTTONS CLICK CONTROLLER     *
+*                                                  *
+* =============================================== */
+
+// Restore Lliked recipe
+window.addEventListener('load', () => {
+    // Create a new likes array
+    state.likes = new Likes();
+    // Restore the likes from the localStorage
+    state.likes.restoreLikes();
+    // Show / Hidde the menu like heart icon
+    likesView.toggleLikeMenu(state.likes.getNumLikes());
+    // Render the existing likes 
+    state.likes.likes.forEach(like => likesView.renderLike(like));
+});
+
+
+// Handle recipe buttons ( + & - & like & shoppingList) click
+elements.recipe.addEventListener('click', el => {
+    if (el.target.matches('.btn-decrease, .btn-decrease *')) {
+        // The event is triggered by - button
+        if (state.recipe.servings > 1) {
+            // One person at less is required
+            state.recipe.updateServings('dec');
+            recipeView.updateServingsIngredients(state.recipe);
+        } else {
+            alert('Impossible to serve this recipe to less than one person');
+        }
+    } else if (el.target.matches('.btn-increase, .btn-increase *')) {
+        // The event is triggered by + button
+        state.recipe.updateServings('inc');
+        recipeView.updateServingsIngredients(state.recipe);
+    } else if (el.target.matches('.recipe__btn-add, .recipe__btn-add *')) {
+        // Handle shopping cart button
+        controlShoppingList();
+    } else if (el.target.matches('.recipe__love, .recipe__love *')) {
+        // Like contoller
+        controlLike();
+    }
+});

@@ -80,7 +80,7 @@ export const renderResults = (recipes, page = 1, resPerPage = 10) => {
 };
 
 // Limit a recipe title
-const limitRecipeTitle = (title, limit = 17) => {
+export const limitRecipeTitle = (title, limit = 17) => {
     // Hold the new truncated array by words
     const newTitle = [];
     if (title.length > limit) {
