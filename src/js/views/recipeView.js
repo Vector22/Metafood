@@ -6,16 +6,19 @@ const formatCount = count => {
     if (count) {
         // 3.5 => 7/2 => 3 1/2
         // 0.5 => 1/2
-        // Split the count number in 2 strings part and convert them to int again
-        const [int, dec] = count.toString().split('.').map(el => parseInt(el, 10));
 
-        if (!dec) return count;  // There are no fraction part
+        // Fix some errors on the size of some ingredients count value
+        const newCount = Math.round(count * 10000) / 10000;
+        // Split the count number in 2 strings part and convert them to int again
+        const [int, dec] = newCount.toString().split('.').map(el => parseInt(el, 10));
+
+        if (!dec) return newCount;  // There are no fraction part
 
         if (int === 0) {
-            const f = new Fraction(count);
+            const f = new Fraction(newCount);
             return `${f.numerator} / ${f.denominator}`;
         } else {
-            const f = new Fraction(count - int);
+            const f = new Fraction(newCount - int);
             return `${int} ${f.numerator} / ${f.denominator}`;
         }
     }

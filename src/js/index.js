@@ -27,7 +27,6 @@ const state = {};
 
 // Executed when we submit the search form
 const controlSearch = async () => {
-    console.log("I'm searching... ");
     // 1- Get query from view
     const query = searchView.getInput();
 
@@ -86,7 +85,6 @@ elements.searchResPages.addEventListener('click', e => {
 *                      *
 * =================== */
 
-// Some tests
 const controlRecipe = async () => {
     // Get ID from url
     const id = window.location.hash.replace('#', '');
@@ -177,9 +175,7 @@ elements.shopping.addEventListener('click', el => {
 *                            *
 * ========================== */
 
-
 const controlLike = () => {
-    console.log('Enter in controlLike function');
     if (!state.likes) state.likes = new Likes();
 
     const recipeId = state.recipe.id;
@@ -214,8 +210,6 @@ const controlLike = () => {
     }
     likesView.toggleLikeMenu(state.likes.getNumLikes());
 };
-
-
 
 
 /* ================================================
